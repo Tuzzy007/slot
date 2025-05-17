@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Slot</title>
+    <title>Sloty</title>
     <link rel="stylesheet" href="./style.css">
     <script>
         const ICONS = [
@@ -54,7 +54,7 @@
         
             const container = document.getElementById('container');
             container.classList.remove('spinning');
-            void container.offsetWidth;
+            void container.offsetWidth; // forced reflow
         
             for (let i = 0; i < cols.length; i++) {
                 let col = cols[i];
@@ -154,6 +154,25 @@
             }
         }
 
+        function generateColumnContent(amountOfItems, results) {
+            let elms = '';
+            for (let x = 0; x < amountOfItems; x++) {
+                let icon;
+                if (results && x < 3) {
+                    icon = results[x];
+                } else {
+                    icon = getRandomIcon();
+                }
+                elms += '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
+            }
+            if (results) {
+                for (let i = 0; i < 3; i++) {
+                    elms += '<div class="icon" data-item="' + results[i] + '"><img src="items/' + results[i] + '.png"></div>';
+                }
+            }
+            return elms;
+        }
+
         function setResult() {
             finalResults = [];
             for (let i = 0; i < cols.length; i++) {
@@ -163,6 +182,9 @@
                     getRandomIcon()
                 ];
                 finalResults.push(results);
+            
+                let amountOfItems = 40 + (i * 3);
+                cols[i].innerHTML = generateColumnContent(amountOfItems, results);
             }
         }
 
