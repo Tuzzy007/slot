@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slot</title>
+    <link rel="stylesheet" href="./style.css">
+    <script>
+        const ICONS = [
+            'apple', 'apricot', 'banana', 'big_win', 'cherry', 'grapes', 'lemon', 'lucky_seven', 'orange', 'pear', 'strawberry', 'watermelon',
+        ];
+        const BASE_SPINNING_DURATION = 2.7;
+        const COLUMN_SPINNING_DURATION = 0.3;
+        let finalResults = [];
+        var cols;
+
+
+        window.addEventListener('DOMContentLoaded', function(event) {
+            cols = document.querySelectorAll('.col');
+        
+            setInitialItems();
+        });
+
+        function setInitialItems() {
+            let baseItemAmount = 40;
+        
+            for (let i = 0; i < cols.length; ++i) {
+                let col = cols[i];
+                let amountOfItems = baseItemAmount + (i * 3);
+                let elms = '';
+                let firstThreeElms = '';
+            
+                for (let x = 0; x < amountOfItems; x++) {
+                    let icon = getRandomIcon();
+                    let item = '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
+                    elms += item;
+                
+                    if (x < 3) firstThreeElms += item; 
+                }
+                col.innerHTML = elms + firstThreeElms;
+            }
+        }
+
+        function spin(elem) {
+            let betInput = document.getElementById('bet');
+            let bet = parseInt(betInput.value);
+            if (isNaN(bet) || bet < 1 || bet > 100) {
+                alert("Adj meg érvényes tétet (1-100)!");
+                return;
+            }
+        
+            setResult();
+        
+            let duration = BASE_SPINNING_DURATION + randomDuration();
+        
+            const container = document.getElementById('container');
+            container.classList.remove('spinning');
+            void container.offsetWidth;
+        
+            for (let i = 0; i < cols.length; i++) {
+                let col = cols[i];
+                let colDuration = duration + COLUMN_SPINNING_DURATION * i + randomDuration();
+                col.style.animationDuration = colDuration + "s";
+            }
+        
+            container.classList.add('spinning');
+        
+            elem.setAttribute('disabled', true);
+            document.getElementById('resultText').textContent = "";
+        
+            window.setTimeout(() => {
+                checkWin(bet);
+                container.classList.remove('spinning');
+            
+                for (let col of cols) {
+                    col.style.transform = "translateY(calc(-100% + var(--item-height) * 3))";
+                    col.style.animationName = "";
+                    col.style.animationDuration = "";
+                }
+            
+                elem.removeAttribute('disabled');
+            }, (duration + COLUMN_SPINNING_DURATION * (cols.length - 1) + 0.5) * 1000);
+        }
+
+        function checkWin(bet) {
+            let wonColumns = 0;
+        
+            for (let col of cols) {
+                let icons = col.querySelectorAll('.icon img');
+                let firstIconSrc = icons[0].getAttribute('src');
+            
+                let allSame = true;
+                for (let i = 1; i < 3; i++) {
+                    if (icons[i].getAttribute('src') !== firstIconSrc) {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (allSame) {
+                    wonColumns++;
+                }
+            }
+        
+            let resultText = document.getElementById('resultText');
+            if (wonColumns === cols.length) {
+                let multiplier = 5; 
+                let winnings = bet * multiplier;
+                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység. (Tét: ${bet} x Szorzó: ${multiplier})`;
+                resultText.style.color = 'green';
+            } else if (wonColumns > 0) {
+                let multiplier = wonColumns;
+                let winnings = bet * multiplier;
+                resultText.textContent = `Részleges nyeremény: ${winnings} egység (${wonColumns} nyertes oszlop).`;
+                resultText.style.color = 'green';
+            } else {
+                resultText.textContent = "Sajnos nem nyertél.";
+                resultText.style.color = 'red';
+            }
+        }
+
+        function checkWin(bet) {
+        
+            let wonColumns = 0;
+        
+            for (let col of cols) {
+                let icons = col.querySelectorAll('.icon img');
+                let firstIcon = icons[0].getAttribute('src');
+            
+                let allSame = true;
+                for (let i = 1; i < 3; i++) {
+                    if (icons[i].getAttribute('src') !== firstIcon) {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (allSame) {
+                    wonColumns++;
+                }
+            }
+        
+            let resultText = document.getElementById('resultText');
+            if (wonColumns === cols.length) {
+                let multiplier = 5; 
+                let winnings = bet * multiplier;
+                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység. (Tét: ${bet} x Szorzó: ${multiplier})`;
+                resultText.style.color = 'green';
+            } else if (wonColumns > 0) {
+                let multiplier = wonColumns;
+                let winnings = bet * multiplier;
+                resultText.textContent = `Részleges nyeremény: ${winnings} egység (${wonColumns} nyertes oszlop).`;
+                resultText.style.color = 'green';
+            } else {
+                resultText.textContent = "Sajnos nem nyertél.";
+                resultText.style.color = 'red';
+            }
+        }
+
+        function setResult() {
+            finalResults = [];
+            for (let i = 0; i < cols.length; i++) {
+                let results = [
+                    getRandomIcon(),
+                    getRandomIcon(),
+                    getRandomIcon()
+                ];
+                finalResults.push(results);
+            }
+        }
+
+
+        function getRandomIcon() {
+            return ICONS[Math.floor(Math.random() * ICONS.length)];
+        }
+
+        function randomDuration() {
+            return Math.floor(Math.random() * 10) / 100;
+        }
+    </script>
+</head>
+<body>
+
+<div id="container">
+    <div id="resultText" style="text-align:center; font-size:24px; margin-top:20px;"></div>
+    <div class="window-border">
+        <div class="window">
+            <div class="outer-spacer"></div>
+            <div class="outer-col">
+                <div class="col"></div>
+            </div>
+            <div class="outer-spacer"></div>
+            <div class="outer-col">
+                <div class="col"></div>
+            </div>
+            <div class="outer-spacer"></div>
+            <div class="outer-col">
+                <div class="col"></div>
+            </div>
+            <div class="outer-spacer"></div>
+        </div>
+    </div>
+
+    <input type="number" id="bet" min="1" max="100" value="10" />
+    <button id="spinBtn" onclick="spin(this)">Spin</button>
+</div>
+
+</body>
+</html>
