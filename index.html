@@ -8,6 +8,7 @@
         const ICONS = [
             'apple', 'apricot', 'banana', 'big_win', 'cherry', 'grapes', 'lemon', 'lucky_seven', 'orange', 'pear', 'strawberry', 'watermelon',
         ];
+        let balance = 100;
         const BASE_SPINNING_DURATION = 2.7;
         const COLUMN_SPINNING_DURATION = 0.3;
         let finalResults = [];
@@ -16,9 +17,14 @@
 
         window.addEventListener('DOMContentLoaded', function(event) {
             cols = document.querySelectorAll('.col');
-        
             setInitialItems();
+            updateBalance(); 
         });
+
+        function updateBalance() {
+            document.getElementById('balance').textContent = `Egyenleg: ${balance}`;
+        }
+
 
         function setInitialItems() {
             let baseItemAmount = 40;
@@ -47,6 +53,7 @@
                 alert("Adj meg érvényes tétet (1-100)!");
                 return;
             }
+            balance -= bet;
         
             setResult();
         
@@ -54,7 +61,7 @@
         
             const container = document.getElementById('container');
             container.classList.remove('spinning');
-            void container.offsetWidth; // forced reflow
+            void container.offsetWidth; 
         
             for (let i = 0; i < cols.length; i++) {
                 let col = cols[i];
@@ -69,6 +76,7 @@
         
             window.setTimeout(() => {
                 checkWin(bet);
+                updateBalance();
                 container.classList.remove('spinning');
             
                 for (let col of cols) {
@@ -82,35 +90,26 @@
         }
 
         function checkWin(bet) {
-            let wonColumns = 0;
-        
+            let results = [];
             for (let col of cols) {
-                let icons = col.querySelectorAll('.icon img');
-                let firstIconSrc = icons[0].getAttribute('src');
-            
-                let allSame = true;
-                for (let i = 1; i < 3; i++) {
-                    if (icons[i].getAttribute('src') !== firstIconSrc) {
-                        allSame = false;
-                        break;
-                    }
-                }
-                if (allSame) {
-                    wonColumns++;
+                let icons = col.querySelectorAll('.icon');
+                results.push(icons[0].dataset.item);
+            }
+        
+            let winnings = 0;
+
+            if (results[0] === results[1] && results[1] === results[2]) {
+                let winningIcon = ICONS.find(icon => icon.name === results[0]);
+                if (winningIcon) {
+                    winnings = bet * winningIcon.payout * 3;
                 }
             }
         
             let resultText = document.getElementById('resultText');
-            if (wonColumns === cols.length) {
-                let multiplier = 5; 
-                let winnings = bet * multiplier;
-                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység. (Tét: ${bet} x Szorzó: ${multiplier})`;
+            if (winnings > 0) {
+                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység.`;
                 resultText.style.color = 'green';
-            } else if (wonColumns > 0) {
-                let multiplier = wonColumns;
-                let winnings = bet * multiplier;
-                resultText.textContent = `Részleges nyeremény: ${winnings} egység (${wonColumns} nyertes oszlop).`;
-                resultText.style.color = 'green';
+                balance += winnings;
             } else {
                 resultText.textContent = "Sajnos nem nyertél.";
                 resultText.style.color = 'red';
@@ -219,9 +218,9 @@
             <div class="outer-spacer"></div>
         </div>
     </div>
-
+    <div id="balance" style="text-align:center; font-size:18px; margin-top:10px;"></div>    
     <input type="number" id="bet" min="1" max="100" value="10" />
-    <button id="spinBtn" onclick="spin(this)">Spin</button>
+    <button id="spinBtn" onclick="spin(this)">Pörgetés</button>
 </div>
 
 </body>
