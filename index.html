@@ -90,68 +90,34 @@
         }
 
         function checkWin(bet) {
-            let results = [];
-            for (let col of cols) {
-                let icons = col.querySelectorAll('.icon');
-                results.push(icons[0].dataset.item);
-            }
-        
-            let winnings = 0;
+    let wonColumns = 0;
 
-            if (results[0] === results[1] && results[1] === results[2]) {
-                let winningIcon = ICONS.find(icon => icon.name === results[0]);
-                if (winningIcon) {
-                    winnings = bet * winningIcon.payout * 3;
-                }
-            }
-        
-            let resultText = document.getElementById('resultText');
-            if (winnings > 0) {
-                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység.`;
-                resultText.style.color = 'green';
-                balance += winnings;
-            } else {
-                resultText.textContent = "Sajnos nem nyertél.";
-                resultText.style.color = 'red';
-            }
+    for (let colIndex = 0; colIndex < cols.length; colIndex++) {
+        let results = finalResults[colIndex];
+        if (results[0] === results[1] && results[1] === results[2]) {
+            wonColumns++;
         }
+    }
 
-        function checkWin(bet) {
-        
-            let wonColumns = 0;
-        
-            for (let col of cols) {
-                let icons = col.querySelectorAll('.icon img');
-                let firstIcon = icons[0].getAttribute('src');
-            
-                let allSame = true;
-                for (let i = 1; i < 3; i++) {
-                    if (icons[i].getAttribute('src') !== firstIcon) {
-                        allSame = false;
-                        break;
-                    }
-                }
-                if (allSame) {
-                    wonColumns++;
-                }
-            }
-        
-            let resultText = document.getElementById('resultText');
-            if (wonColumns === cols.length) {
-                let multiplier = 5; 
-                let winnings = bet * multiplier;
-                resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység. (Tét: ${bet} x Szorzó: ${multiplier})`;
-                resultText.style.color = 'green';
-            } else if (wonColumns > 0) {
-                let multiplier = wonColumns;
-                let winnings = bet * multiplier;
-                resultText.textContent = `Részleges nyeremény: ${winnings} egység (${wonColumns} nyertes oszlop).`;
-                resultText.style.color = 'green';
-            } else {
-                resultText.textContent = "Sajnos nem nyertél.";
-                resultText.style.color = 'red';
-            }
-        }
+    let resultText = document.getElementById('resultText');
+    if (wonColumns === cols.length) {
+        let multiplier = 5;
+        let winnings = bet * multiplier;
+        resultText.textContent = `Nyertél! Nyeremény: ${winnings} egység. (Tét: ${bet} x Szorzó: ${multiplier})`;
+        resultText.style.color = 'green';
+        balance += winnings;
+    } else if (wonColumns > 0) {
+        let multiplier = wonColumns;
+        let winnings = bet * multiplier;
+        resultText.textContent = `Részleges nyeremény: ${winnings} egység (${wonColumns} nyertes oszlop).`;
+        resultText.style.color = 'green';
+        balance += winnings;
+    } else {
+        resultText.textContent = "Sajnos nem nyertél.";
+        resultText.style.color = 'red';
+    }
+}
+
 
         function generateColumnContent(amountOfItems, results) {
             let elms = '';
